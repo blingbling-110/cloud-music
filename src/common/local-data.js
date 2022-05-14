@@ -1,7 +1,7 @@
 export const headerLinks = [
   {
     title: "发现音乐",
-    link: "/"
+    link: "/discover"
   },
   {
     title: "我的音乐",
@@ -83,27 +83,27 @@ export const footerImages = [
 export const dicoverMenu = [
   {
     title: "推荐",
-    link: "/recommend"
+    link: "recommend"
   },
   {
     title: "排行榜",
-    link: "/ranking"
+    link: "ranking"
   },
   {
     title: "歌单",
-    link: "/songs"
+    link: "songs"
   },
   {
     title: "主播电台",
-    link: "/djradio"
+    link: "djradio"
   },
   {
     title: "歌手",
-    link: "/artist"
+    link: "artist"
   },
   {
     title: "新碟上架",
-    link: "/album"
+    link: "album"
   },
 ]
 
