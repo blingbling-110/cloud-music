@@ -1,21 +1,18 @@
 import { memo, useEffect } from 'react'
-import { connect } from 'react-redux'
 import { getTopBanners } from '@/pages/discover/c-pages/recommend/recommendSlice'
+import { useDispatch, useSelector, shallowEqual } from 'react-redux'
 
-export default connect(state => ({
-  topBanners: state.recommend.topBanners,
-}), dispatch => ({
-  getBanners: () => {
-    dispatch(getTopBanners())
-  },
-}))(memo(function (props) {
-  const { topBanners, getBanners } = props
+export default memo(function (props) {
+  const { topBanners } = useSelector(state => ({
+    topBanners: state.recommend.topBanners,
+  }), shallowEqual)
+  const dispatch = useDispatch()
 
   useEffect(() => {
-    getBanners()
-  }, [getBanners])
+    dispatch(getTopBanners())
+  }, [dispatch])
 
   return (
     <div>{topBanners.length}</div>
   )
-}))
+})
