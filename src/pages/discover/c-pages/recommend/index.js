@@ -1,18 +1,12 @@
-import { memo, useEffect } from 'react'
-import { getTopBanners } from '@/pages/discover/c-pages/recommend/recommendSlice'
-import { useDispatch, useSelector, shallowEqual } from 'react-redux'
+import { memo } from 'react'
+
+import { RecommendWrapper } from '@/pages/discover/c-pages/recommend/style'
+import TopBanner from '@/pages/discover/c-pages/recommend/c-cpns/top-banner'
 
 export default memo(function (props) {
-  const { topBanners } = useSelector(state => ({
-    topBanners: state.recommend.topBanners,
-  }), shallowEqual)
-  const dispatch = useDispatch()
-
-  useEffect(() => {
-    dispatch(getTopBanners())
-  }, [dispatch])
-
   return (
-    <div>{topBanners.length}</div>
+    <RecommendWrapper>
+      <TopBanner/>
+    </RecommendWrapper>
   )
 })

@@ -13,7 +13,14 @@ export default memo(function () {
           {
             dicoverMenu.map(({ title, link }) => (
               <div className={'item'} key={title}>
-                <NavLink to={link}>{title}</NavLink>
+                <NavLink to={link}>
+                  {
+                    title
+                  }
+                  {
+                    title === '歌单' && <span className={'r-icon'}/>
+                  }
+                </NavLink>
               </div>
             ))
           }

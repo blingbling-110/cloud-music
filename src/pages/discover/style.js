@@ -29,4 +29,14 @@ export const TopMenu = styled.div`
       }
     }
   }
+
+  .r-icon {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    position: absolute;
+    top: 9px;
+    background: url(${require('@/assets/img/white-r-icon@3x.png')});
+    background-size: cover;
+  }
 `
