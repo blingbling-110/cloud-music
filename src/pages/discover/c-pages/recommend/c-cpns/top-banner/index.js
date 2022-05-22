@@ -19,9 +19,7 @@ const TYPE_MAP = {
 export default memo(function () {
   const [currIdx, setCurrIdx] = useState(0)
 
-  const { topBanners } = useSelector(state => ({
-    topBanners: state.recommend.topBanners,
-  }), shallowEqual)
+  const { topBanners } = useSelector(state => state.recommend, shallowEqual)
   const dispatch = useDispatch()
   useEffect(() => {
     dispatch(getTopBanners())
