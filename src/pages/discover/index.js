@@ -1,6 +1,6 @@
 import { memo } from 'react'
 
-import { dicoverMenu } from '@/common/local-data'
+import { discoverMenu } from '@/common/local-data'
 
 import { NavLink, Outlet } from 'react-router-dom'
 import { DiscoverWrapper, TopMenu } from '@/pages/discover/style'
@@ -11,7 +11,7 @@ export default memo(function () {
       <div className={'top'}>
         <TopMenu className={'wrap-v1'}>
           {
-            dicoverMenu.map(({ title, link }) => (
+            discoverMenu.map(({ title, link }) => (
               <div className={'item'} key={title}>
                 <NavLink to={link}>
                   {
