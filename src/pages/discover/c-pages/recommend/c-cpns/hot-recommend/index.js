@@ -4,12 +4,13 @@ import ThemeHeaderRcm from 'components/theme-header-rcm'
 import { shallowEqual, useDispatch, useSelector } from 'react-redux'
 import { getHotRecommends } from '@/pages/discover/c-pages/recommend/recommendSlice'
 import SongsCover from 'components/songs-cover'
+import { HOT_RECOMMEND_LIMIT } from '@/common/constants'
 
 export default memo(function () {
   const { hotRecommends } = useSelector(state => state.recommend, shallowEqual)
   const dispatch = useDispatch()
   useEffect(() => {
-    dispatch(getHotRecommends(8))
+    dispatch(getHotRecommends(HOT_RECOMMEND_LIMIT))
   }, [dispatch])
 
   return (
