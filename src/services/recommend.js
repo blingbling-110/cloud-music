@@ -10,8 +10,8 @@ export function requestHotRecommends (limit) {
   return request({
     url: '/personalized',
     params: {
-      limit
-    }
+      limit,
+    },
   })
 }
 
@@ -19,7 +19,22 @@ export function requestNewAlbums (limit) {
   return request({
     url: '/top/album',
     params: {
-      limit
-    }
+      limit,
+    },
+  })
+}
+
+export function requestTopList () {
+  return request({
+    url: '/toplist',
+  })
+}
+
+export function requestPlayListDetail (id) {
+  return request({
+    url: '/playlist/detail',
+    params: {
+      id,
+    },
   })
 }

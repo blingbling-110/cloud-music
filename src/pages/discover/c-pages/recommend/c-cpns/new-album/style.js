@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components'
 
 export const AlbumWrapper = styled.div`
   margin-top: 50px;
@@ -19,7 +19,7 @@ export const AlbumWrapper = styled.div`
 
     .arrow-left {
       background-position: -260px -75px;
-       
+
       &:hover {
         background-position: -280px -75px;
       }
@@ -46,6 +46,10 @@ export const AlbumWrapper = styled.div`
         display: flex !important;
         justify-content: space-between;
         align-items: center;
+
+        & > div {
+          background-position: -260px 110px;
+        }
       }
     }
   }
