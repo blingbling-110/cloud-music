@@ -1,7 +1,8 @@
 import { TopRankingWrapper } from 'components/top-ranking/style'
 import { getSizeImg } from '@/utils/formatter'
+import { memo } from 'react'
 
-export default function (props) {
+export default memo(function (props) {
   const { info } = props
 
   return (
@@ -42,4 +43,4 @@ export default function (props) {
       </div>
     </TopRankingWrapper>
   )
-}
+})
