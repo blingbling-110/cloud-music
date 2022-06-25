@@ -18,7 +18,7 @@ export default memo(function () {
       <ThemeHeaderRcm title={'热门推荐'} keywords={['华语', '流行', '民谣', '摇滚', '电子']} href={'#/discover/songs'}/>
       <div className={'list'}>
         {
-          hotRecommends.map(item => <SongsCover key={item.id} info={item}/>)
+          hotRecommends?.map(item => <SongsCover key={item.id} info={item}/>)
         }
       </div>
     </HotRecommendWrapper>

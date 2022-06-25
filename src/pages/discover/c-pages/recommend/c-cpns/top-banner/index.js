@@ -38,7 +38,7 @@ export default memo(function () {
   }, [])
 
   return (
-    <BannerWrapper bgImage={topBanners[currIdx]?.imageUrl + '?imageView&blur=40x20'}>
+    <BannerWrapper bgImage={topBanners ? topBanners?.[currIdx]?.imageUrl + '?imageView&blur=40x20' : ''}>
       <div className={'banner wrap-v2'}>
         <BannerControl>
           <button className={'btn left'} onClick={() => bannerRef.current.prev()}/>
@@ -48,7 +48,7 @@ export default memo(function () {
           <Carousel ref={bannerRef} effect="fade" autoplay autoplaySpeed={5000}
                     dots={{ className: 'dots' }} beforeChange={bannerChg}>
             {
-              topBanners.map(banner => {
+              topBanners?.map(banner => {
                 const [href, target] = getHref(banner)
                 return (
                   <div className={'banner-item'} key={banner.targetId}>

@@ -6,9 +6,9 @@ import { RankingWrapper } from '@/pages/discover/c-pages/recommend/c-cpns/recomm
 
 export default memo(function () {
   const { data } = useTopList()
-  const { data: listData0 } = usePlayListDetail(data?.list[0].id)
-  const { data: listData1 } = usePlayListDetail(data?.list[1].id)
-  const { data: listData2 } = usePlayListDetail(data?.list[2].id)
+  const { data: listData0 } = usePlayListDetail(data?.list?.[0].id)
+  const { data: listData1 } = usePlayListDetail(data?.list?.[1].id)
+  const { data: listData2 } = usePlayListDetail(data?.list?.[2].id)
 
   return (
     <RankingWrapper>

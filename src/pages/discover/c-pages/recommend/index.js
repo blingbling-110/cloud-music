@@ -5,8 +5,11 @@ import TopBanner from '@/pages/discover/c-pages/recommend/c-cpns/top-banner'
 import HotRecommend from '@/pages/discover/c-pages/recommend/c-cpns/hot-recommend'
 import NewAlbum from '@/pages/discover/c-pages/recommend/c-cpns/new-album'
 import RecommendRanking from '@/pages/discover/c-pages/recommend/c-cpns/recommend-ranking'
+import UserLogin from '@/pages/discover/c-pages/recommend/c-cpns/user-login'
+import SettleSinger from '@/pages/discover/c-pages/recommend/c-cpns/settle-singer'
+import HotAnchor from '@/pages/discover/c-pages/recommend/c-cpns/hot-anchor'
 
-export default memo(function (props) {
+export default memo(function () {
   return (
     <RecommendWrapper>
       <TopBanner/>
@@ -17,6 +20,9 @@ export default memo(function (props) {
           <RecommendRanking/>
         </div>
         <div className={'right-column'}>
+          <UserLogin/>
+          <SettleSinger/>
+          <HotAnchor/>
         </div>
       </div>
     </RecommendWrapper>

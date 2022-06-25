@@ -13,8 +13,10 @@ export default memo(function (props) {
            rel="noreferrer">{info.name}</a>
       </div>
       <div className={'album-info'}>
-        <div className={'name'}>{info.name}</div>
-        <div className={'artist'}>{info.artist.name}</div>
+        <a href={'https://music.163.com/album?id=' + info.id} className={'name'} target={'_blank'}
+           rel="noreferrer" title={info.name}>{info.name}</a>
+        <a href={'https://music.163.com/artist?id=' + info.artist.id} className={'artist'} target={'_blank'}
+           rel="noreferrer" title={info.artist.name}>{info.artist.name}</a>
       </div>
     </AlbumWrapper>
   )

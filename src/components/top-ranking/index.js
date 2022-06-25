@@ -27,7 +27,7 @@ export default memo(function (props) {
               <div className={'rank'}>{idx + 1}</div>
               <div className={'info'}>
                 <a className={'name text-nowrap'} href={`https://music.163.com/song?id=${item.id}`} target={'_blank'}
-                   rel="noreferrer">{item.name}</a>
+                   rel="noreferrer" title={item.name}>{item.name}</a>
                 <div className={'operate'}>
                   <button className={'btn sprite_02 play'}/>
                   <button className={'btn sprite_icon2 addto'}/>

@@ -5,8 +5,7 @@ import { getCount, getSizeImg } from '@/utils/formatter'
 export default memo(function (props) {
   const { info, right, showSrc = false, noWrap = false } = props
   const href = 'https://music.163.com/playlist?id=' + info.id
-  // TODO 作者ID
-  const srcHref = 'https://music.163.com/user/home?id=' + info.id
+  const srcHref = info?.artist?.id ? 'https://music.163.com/user/home?id=' + info?.artist?.id : '/#'
 
   return (
     <SongsCoverWrapper right={right}>
@@ -19,12 +18,12 @@ export default memo(function (props) {
               <i className="sprite_icon head-phone"/>
               {getCount(info.playCount)}
             </span>
-            <i className="sprite_icon play"/>
+            <i className="sprite_icon play" title={'播放'}/>
           </div>
         </div>
       </div>
       <div className={'cover-bottom' + (noWrap ? ' text-nowrap' : '')}>
-        <a href={href} target={'_blank'} rel="noreferrer">{info.name}</a>
+        <a href={href} target={'_blank'} rel="noreferrer" title={info.name}>{info.name}</a>
       </div>
       {
         showSrc && <div className={'cover-source' + (noWrap ? ' text-nowrap' : '')}>
