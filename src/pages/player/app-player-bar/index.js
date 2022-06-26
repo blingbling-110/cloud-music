@@ -1,4 +1,4 @@
-import { memo, useCallback, useRef } from 'react'
+import { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { Control, Operator, PlaybarWrapper, PlayInfo } from '@/pages/player/app-player-bar/style'
 import { message, Slider } from 'antd'
 import { useQuery } from 'react-query'
@@ -8,31 +8,71 @@ import { PLAYER_DEFAULT_PIC_URL } from '@/common/constants'
 import { formatDate, getPlaySong, getSizeImg } from '@/utils/formatter'
 
 export default memo(function () {
+  const [currentTime, setCurrentTime] = useState(0)
+  const [progress, setProgress] = useState(0)
+  const [isChanging, setIsChanging] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(false)
+
   const { currentSong } = useSelector(state => state.player)
-  const { isError, data } = useQuery('songDetail', () => requestSongDetail(currentSong))
+  const { isError, data } = useQuery('songDetail', () => requestSongDetail(currentSong), {
+    enabled: !!currentSong,
+  })
   isError && message.error('网络异常')
   const song = data?.songs?.[0]
 
   const audioRef = useRef()
+  useEffect(() => {
+    if (!song?.id) {
+      return
+    }
+    audioRef.current.src = getPlaySong(song?.id)
+  }, [song?.id])
   const playMusic = useCallback(() => {
     if (!song) {
       return
     }
-    audioRef.current.src = getPlaySong(song.id)
-    audioRef.current.play()
-  }, [])
+    if (isPlaying) {
+      audioRef.current.pause()
+    } else {
+      audioRef.current.play()
+    }
+    setIsPlaying(!isPlaying)
+  }, [isPlaying, song])
+
+  const timeUpdate = useCallback(e => {
+    if (!song?.dt || isChanging) {
+      return
+    }
+    setCurrentTime(e.target.currentTime * 1000)
+    setProgress(currentTime * 100 / song?.dt)
+  }, [currentTime, isChanging, song?.dt])
+
+  const sliderChange = useCallback(value => {
+    setIsChanging(true)
+    setCurrentTime(value / 100 * song?.dt)
+    setProgress(value)
+  }, [song?.dt])
+  const sliderAfterChange = useCallback(value => {
+    if (!song?.dt) {
+      return
+    }
+    const currentTime = value / 100 * song?.dt
+    setCurrentTime(currentTime)
+    audioRef.current.currentTime = currentTime / 1000
+    setIsChanging(false)
+  }, [song?.dt])
 
   return (
     <PlaybarWrapper className={'sprite_player'}>
       <div className={'content wrap-v2'}>
-        <Control>
+        <Control isPlaying={isPlaying}>
           <button className={'sprite_player btn prev'}/>
           <button className={'sprite_player btn play'} onClick={playMusic}/>
           <button className={'sprite_player btn next'}/>
         </Control>
         <PlayInfo>
           <div className={'image'}>
-            <a href={!!song?.id ? '#/song?id=' + song?.id : '/#'} title={song?.name ?? ''}>
+            <a href={!!song?.id ? '#/song?id=' + song?.id : '/#'}>
               <img src={getSizeImg(song?.al?.picUrl ?? PLAYER_DEFAULT_PIC_URL, 34)} alt={'avatar'}/>
             </a>
           </div>
@@ -45,11 +85,12 @@ export default memo(function () {
                  title={song?.ar?.[0]?.name ?? ''}>{song?.ar?.[0]?.name ?? ''}</a>
             </div>
             <div className={'progress'}>
-              <Slider defaultValue={0} tooltipVisible={false}/>
+              <Slider defaultValue={0} tooltipVisible={false} value={progress} onChange={sliderChange}
+                      onAfterChange={sliderAfterChange}/>
               <div className={'time'}>
-                <span className={'now-time'}>{song?.dt ?? '00:00'}</span>
+                <span className={'now-time'}>{formatDate(currentTime, 'mm:ss')}</span>
                 <span className={'divider'}>/</span>
-                <span className={'duration'}>{formatDate(song?.dt, 'mm:ss') ?? '00:00'}</span>
+                <span className={'duration'}>{formatDate(song?.dt ?? 0, 'mm:ss')}</span>
               </div>
             </div>
           </div>
@@ -66,7 +107,7 @@ export default memo(function () {
           </div>
         </Operator>
       </div>
-      <audio ref={audioRef}/>
+      <audio ref={audioRef} onTimeUpdate={timeUpdate}/>
     </PlaybarWrapper>
   )
 })
