@@ -6,6 +6,7 @@ import { requestSongDetail } from '@/services/player'
 import { useSelector } from 'react-redux'
 import { PLAYER_DEFAULT_PIC_URL } from '@/common/constants'
 import { formatDate, getPlaySong, getSizeImg } from '@/utils/formatter'
+import { NavLink } from 'react-router-dom'
 
 export default memo(function () {
   const [currentTime, setCurrentTime] = useState(0)
@@ -14,20 +15,15 @@ export default memo(function () {
   const [isPlaying, setIsPlaying] = useState(false)
 
   const { currentSong } = useSelector(state => state.player)
-  const { isError, data } = useQuery('songDetail', () => requestSongDetail(currentSong), {
+  const { isError, data } = useQuery(['songDetail', currentSong], () => requestSongDetail(currentSong), {
     enabled: !!currentSong,
   })
   isError && message.error('网络异常')
   const song = data?.songs?.[0]
 
   const audioRef = useRef()
-  useEffect(() => {
-    if (!song?.id) {
-      return
-    }
-    audioRef.current.src = getPlaySong(song?.id)
-  }, [song?.id])
-  const playMusic = useCallback(() => {
+
+  const playAndPause = useCallback(() => {
     if (!song) {
       return
     }
@@ -48,10 +44,14 @@ export default memo(function () {
   }, [currentTime, isChanging, song?.dt])
 
   const sliderChange = useCallback(value => {
+    if (!song) {
+      return
+    }
     setIsChanging(true)
     setCurrentTime(value / 100 * song?.dt)
     setProgress(value)
-  }, [song?.dt])
+  }, [song])
+
   const sliderAfterChange = useCallback(value => {
     if (!song?.dt) {
       return
@@ -62,24 +62,40 @@ export default memo(function () {
     setIsChanging(false)
   }, [song?.dt])
 
+  const handleEnd = useCallback(() => {
+    setIsPlaying(false)
+  }, [setIsPlaying])
+
+  useEffect(() => {
+    if (!song?.id) {
+      return
+    }
+    audioRef.current.src = getPlaySong(song?.id)
+    if (!isPlaying) {
+      playAndPause()
+    } else {
+      audioRef.current.play()
+    }
+  }, [song?.id])
+
   return (
     <PlaybarWrapper className={'sprite_player'}>
       <div className={'content wrap-v2'}>
         <Control isPlaying={isPlaying}>
           <button className={'sprite_player btn prev'}/>
-          <button className={'sprite_player btn play'} onClick={playMusic}/>
+          <button className={'sprite_player btn play'} onClick={playAndPause}/>
           <button className={'sprite_player btn next'}/>
         </Control>
         <PlayInfo>
           <div className={'image'}>
-            <a href={!!song?.id ? '#/song?id=' + song?.id : '/#'}>
+            <NavLink to={!!song?.id ? '/song?id=' + song?.id : ''}>
               <img src={getSizeImg(song?.al?.picUrl ?? PLAYER_DEFAULT_PIC_URL, 34)} alt={'avatar'}/>
-            </a>
+            </NavLink>
           </div>
           <div className={'info'}>
             <div className={'song'}>
-              <a href={!!song?.id ? '#/song?id=' + song?.id : '/#'}
-                 className={'song-name'} title={song?.name ?? ''}>{song?.name ?? ''}</a>
+              <NavLink to={!!song?.id ? '/song?id=' + song?.id : ''}
+                       className={'song-name'} title={song?.name ?? ''}>{song?.name ?? ''}</NavLink>
               <a href={!!song?.ar?.[0]?.id ? 'https://music.163.com/artist?id=' + song?.ar?.[0]?.id : '/#'}
                  className={'singer-name'} target={'_blank'} rel="noreferrer"
                  title={song?.ar?.[0]?.name ?? ''}>{song?.ar?.[0]?.name ?? ''}</a>
@@ -107,7 +123,7 @@ export default memo(function () {
           </div>
         </Operator>
       </div>
-      <audio ref={audioRef} onTimeUpdate={timeUpdate}/>
+      <audio ref={audioRef} onTimeUpdate={timeUpdate} onEnded={handleEnd}/>
     </PlaybarWrapper>
   )
 })
