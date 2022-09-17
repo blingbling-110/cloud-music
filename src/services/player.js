@@ -8,3 +8,12 @@ export function requestSongDetail (ids) {
     },
   })
 }
+
+export function requestLyric (id) {
+  return request({
+    url: '/lyric',
+    params: {
+      id
+    }
+  })
+}

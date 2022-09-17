@@ -1,4 +1,5 @@
 import styled from 'styled-components'
+import { PLAY_LOOP, PLAY_RANDOM } from '@/common/constants'
 
 export const PlaybarWrapper = styled.div`
   position: fixed;
@@ -87,7 +88,7 @@ export const PlayInfo = styled.div`
       position: relative;
       top: 8px;
       left: 8px;
-      
+
       .song-name {
         color: #e1e1e1;
       }
@@ -181,24 +182,24 @@ export const Operator = styled.div`
     .loop {
       background-position: ${props => {
         switch (props.sequence) {
-          case 1:
-            return '-66px -248px'
-          case 2:
-            return '-66px -344px'
-          default:
+          case PLAY_LOOP:
             return '-3px -344px'
+          case PLAY_RANDOM:
+            return '-66px -248px'
+          default:
+            return '-66px -344px'
         }
       }};
 
       &:hover {
         background-position-x: ${props => {
           switch (props.sequence) {
-            case 1:
-              return '-93px'
-            case 2:
+            case PLAY_LOOP:
+              return '-33px'
+            case PLAY_RANDOM:
               return '-93px'
             default:
-              return '-33px'
+              return '-93px'
           }
         }};
       }

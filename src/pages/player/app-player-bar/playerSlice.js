@@ -1,17 +1,18 @@
 import { createSlice } from '@reduxjs/toolkit'
+import { PLAY_LOOP, PLAY_RANDOM, PREV } from '@/common/constants'
+import { getRandomNum } from '@/utils/math'
 
 const playerSlice = createSlice({
   name: 'player',
   initialState: {
-    currentSong: undefined,
     playList: [],
     curSongIdx: 0,
+    sequence: PLAY_LOOP,
   },
   reducers: {
     setCurrentSong (state, action) {
       const ids = action.payload
       const playList = state.playList
-      state.currentSong = ids
       let idx = playList.findIndex(song => song === ids)
       if (idx === -1) {
         state.playList = [...playList, ids]
@@ -19,15 +20,36 @@ const playerSlice = createSlice({
       }
       state.curSongIdx = idx
     },
-    chgPlayList (state, action) {
-      state.playList = action.payload
+    chgSequence (state, action) {
+      state.sequence = action.payload
     },
-    chgCurSongIdx (state, action) {
-      state.curSongIdx = action.payload
+    switchSong (state, action) {
+      const { sequence, curSongIdx, playList } = state
+      let idx = curSongIdx
+
+      if (sequence === PLAY_RANDOM) {
+        while (idx === curSongIdx) {
+          idx = getRandomNum(playList.length)
+        }
+      } else {
+        if (action.payload === PREV) {
+          idx = curSongIdx - 1
+        } else {
+          idx = curSongIdx + 1
+        }
+        if (idx >= playList.length) {
+          idx = 0
+        }
+        if (idx < 0) {
+          idx = playList.length - 1
+        }
+      }
+
+      state.curSongIdx = idx
     },
   },
 })
 
-export const { setCurrentSong, chgPlayList, chgCurSongIdx } = playerSlice.actions
+export const { setCurrentSong, chgSequence, switchSong } = playerSlice.actions
 
 export default playerSlice.reducer

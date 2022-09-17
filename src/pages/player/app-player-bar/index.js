@@ -1,12 +1,14 @@
-import { memo, useCallback, useEffect, useRef, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Control, Operator, PlaybarWrapper, PlayInfo } from '@/pages/player/app-player-bar/style'
 import { message, Slider } from 'antd'
 import { useQuery } from 'react-query'
-import { requestSongDetail } from '@/services/player'
-import { useSelector } from 'react-redux'
-import { PLAYER_DEFAULT_PIC_URL } from '@/common/constants'
+import { requestLyric, requestSongDetail } from '@/services/player'
+import { useDispatch, useSelector } from 'react-redux'
+import { NEXT, PLAY_LOOP, PLAY_RANDOM, PLAY_SINGLE, PLAYER_DEFAULT_PIC_URL, PREV } from '@/common/constants'
 import { formatDate, getPlaySong, getSizeImg } from '@/utils/formatter'
 import { NavLink } from 'react-router-dom'
+import { chgSequence, switchSong } from '@/pages/player/app-player-bar/playerSlice'
+import { parseLyric } from '@/utils/lyric'
 
 export default memo(function () {
   const [currentTime, setCurrentTime] = useState(0)
@@ -14,12 +16,20 @@ export default memo(function () {
   const [isChanging, setIsChanging] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
 
-  const { currentSong } = useSelector(state => state.player)
-  const { isError, data } = useQuery(['songDetail', currentSong], () => requestSongDetail(currentSong), {
-    enabled: !!currentSong,
+  const { playList, curSongIdx, sequence } = useSelector(state => state.player)
+  const dispatch = useDispatch()
+
+  const songIdx = useMemo(() => playList[curSongIdx], [curSongIdx, playList])
+  const { isError: isSongError, data: songData } = useQuery(['songDetail', songIdx], () => requestSongDetail(songIdx), {
+    enabled: !!songIdx,
   })
-  isError && message.error('网络异常')
-  const song = data?.songs?.[0]
+  isSongError && message.error('获取歌曲详情失败，请检查网络')
+  const song = useMemo(() => songData?.songs?.[0], [songData?.songs])
+  const { isError: isLyricError, data: lyricData } = useQuery(['lyric', songIdx], () => requestLyric(songIdx), {
+    enabled: !!songIdx,
+  })
+  isLyricError && message.error('获取歌词失败，请检查网络')
+  const lyric = useMemo(() => parseLyric(lyricData?.lrc?.lyric), [lyricData?.lrc?.lyric])
 
   const audioRef = useRef()
 
@@ -35,7 +45,7 @@ export default memo(function () {
     setIsPlaying(!isPlaying)
   }, [isPlaying, song])
 
-  const timeUpdate = useCallback(e => {
+  const onTimeUpdate = useCallback(e => {
     if (!song?.dt || isChanging) {
       return
     }
@@ -43,7 +53,7 @@ export default memo(function () {
     setProgress(currentTime * 100 / song?.dt)
   }, [currentTime, isChanging, song?.dt])
 
-  const sliderChange = useCallback(value => {
+  const onSliderChange = useCallback(value => {
     if (!song) {
       return
     }
@@ -52,7 +62,7 @@ export default memo(function () {
     setProgress(value)
   }, [song])
 
-  const sliderAfterChange = useCallback(value => {
+  const onSliderAfterChange = useCallback(value => {
     if (!song?.dt) {
       return
     }
@@ -62,29 +72,64 @@ export default memo(function () {
     setIsChanging(false)
   }, [song?.dt])
 
-  const handleEnd = useCallback(() => {
-    setIsPlaying(false)
-  }, [setIsPlaying])
+  const onEnded = useCallback(() => {
+    if (sequence === PLAY_SINGLE) {
+      audioRef.current.currentTime = 0
+      audioRef.current.play()
+    } else {
+      dispatch(switchSong(NEXT))
+    }
+  }, [dispatch, sequence])
 
   useEffect(() => {
     if (!song?.id) {
       return
     }
     audioRef.current.src = getPlaySong(song?.id)
-    if (!isPlaying) {
-      playAndPause()
-    } else {
-      audioRef.current.play()
-    }
+    audioRef.current.play()
+    setIsPlaying(true)
   }, [song?.id])
+
+  const switchSequence = useCallback(() => {
+    switch (sequence) {
+      case PLAY_LOOP:
+        dispatch(chgSequence(PLAY_RANDOM))
+        break
+      case PLAY_RANDOM:
+        dispatch(chgSequence(PLAY_SINGLE))
+        break
+      default:
+        dispatch(chgSequence(PLAY_LOOP))
+        break
+    }
+  }, [dispatch, sequence])
+
+  const sequenceTitle = useMemo(() => {
+    switch (sequence) {
+      case PLAY_LOOP:
+        return '循环'
+      case PLAY_RANDOM:
+        return '随机'
+      default:
+        return '单曲循环'
+    }
+  }, [sequence])
+
+  const playPrev = useCallback(() => {
+    dispatch(switchSong(PREV))
+  }, [dispatch])
+
+  const playNext = useCallback(() => {
+    dispatch(switchSong(NEXT))
+  }, [dispatch])
 
   return (
     <PlaybarWrapper className={'sprite_player'}>
       <div className={'content wrap-v2'}>
         <Control isPlaying={isPlaying}>
-          <button className={'sprite_player btn prev'}/>
-          <button className={'sprite_player btn play'} onClick={playAndPause}/>
-          <button className={'sprite_player btn next'}/>
+          <button className={'sprite_player btn prev'} title={'上一首'} onClick={playPrev}/>
+          <button className={'sprite_player btn play'} title={'播放/暂停'} onClick={playAndPause}/>
+          <button className={'sprite_player btn next'} title={'下一首'} onClick={playNext}/>
         </Control>
         <PlayInfo>
           <div className={'image'}>
@@ -101,8 +146,8 @@ export default memo(function () {
                  title={song?.ar?.[0]?.name ?? ''}>{song?.ar?.[0]?.name ?? ''}</a>
             </div>
             <div className={'progress'}>
-              <Slider defaultValue={0} tooltipVisible={false} value={progress} onChange={sliderChange}
-                      onAfterChange={sliderAfterChange}/>
+              <Slider defaultValue={0} tooltipVisible={false} value={progress} onChange={onSliderChange}
+                      onAfterChange={onSliderAfterChange}/>
               <div className={'time'}>
                 <span className={'now-time'}>{formatDate(currentTime, 'mm:ss')}</span>
                 <span className={'divider'}>/</span>
@@ -111,19 +156,19 @@ export default memo(function () {
             </div>
           </div>
         </PlayInfo>
-        <Operator>
+        <Operator sequence={sequence}>
           <div className={'left'}>
-            <button className={'sprite_player btn favor'}/>
-            <button className={'sprite_player btn share'}/>
+            <button className={'sprite_player btn favor'} title={'收藏'}/>
+            <button className={'sprite_player btn share'} title={'分享'}/>
           </div>
           <div className={'right sprite_player'}>
             <button className={'sprite_player btn volume'}/>
-            <button className={'sprite_player btn loop'}/>
-            <button className={'sprite_player btn playlist'}/>
+            <button className={'sprite_player btn loop'} title={sequenceTitle} onClick={switchSequence}/>
+            <button className={'sprite_player btn playlist'} title={'播放列表'}/>
           </div>
         </Operator>
       </div>
-      <audio ref={audioRef} onTimeUpdate={timeUpdate} onEnded={handleEnd}/>
+      <audio ref={audioRef} onTimeUpdate={onTimeUpdate} onEnded={onEnded}/>
     </PlaybarWrapper>
   )
 })
