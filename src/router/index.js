@@ -1,15 +1,16 @@
 import { Navigate } from 'react-router-dom'
+import { lazy } from 'react'
 
-import Discover from '@/pages/discover'
-import Recommend from '@/pages/discover/c-pages/recommend'
-import Ranking from '@/pages/discover/c-pages/ranking'
-import Album from '@/pages/discover/c-pages/album'
-import Artist from '@/pages/discover/c-pages/artist'
-import Djradio from '@/pages/discover/c-pages/djradio'
-import Songs from '@/pages/discover/c-pages/songs'
-import Mine from '@/pages/mine'
-import Friend from '@/pages/friend'
-import Song from '@/pages/player/song'
+const Discover = lazy(() => import('@/pages/discover'))
+const Recommend = lazy(() => import('@/pages/discover/c-pages/recommend'))
+const Ranking = lazy(() => import('@/pages/discover/c-pages/ranking'))
+const Album = lazy(() => import('@/pages/discover/c-pages/album'))
+const Artist = lazy(() => import('@/pages/discover/c-pages/artist'))
+const Djradio = lazy(() => import('@/pages/discover/c-pages/djradio'))
+const Songs = lazy(() => import('@/pages/discover/c-pages/songs'))
+const Mine = lazy(() => import('@/pages/mine'))
+const Friend = lazy(() => import('@/pages/friend'))
+const Song = lazy(() => import('@/pages/player/song'))
 
 export const routes = [
   {
@@ -23,7 +24,7 @@ export const routes = [
       {
         index: true,
         element: <Navigate to={'recommend'}/>,
-      },      {
+      }, {
         path: 'recommend',
         element: <Recommend/>,
       },
