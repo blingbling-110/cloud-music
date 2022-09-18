@@ -16,7 +16,7 @@ export function parseLyric (lyric) {
       continue
     }
     const [, minute, second, millisecond] = resArr
-    const time = minute * 60 * 1000 + second * 1000 + millisecond.length === 3 ? millisecond : millisecond * 10
+    const time = minute * 60 * 1000 + second * 1000 + millisecond * 10 ** (3 - millisecond.length)
     const content = line.replace(LYRIC_EXP, '').trim()
     res.push({ time, content })
   }

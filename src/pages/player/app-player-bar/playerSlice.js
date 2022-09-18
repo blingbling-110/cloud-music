@@ -28,7 +28,7 @@ const playerSlice = createSlice({
       let idx = curSongIdx
 
       if (sequence === PLAY_RANDOM) {
-        while (idx === curSongIdx) {
+        while (playList.length > 1 && idx === curSongIdx) {
           idx = getRandomNum(playList.length)
         }
       } else {

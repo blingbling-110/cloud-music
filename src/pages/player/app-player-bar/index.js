@@ -15,6 +15,7 @@ export default memo(function () {
   const [progress, setProgress] = useState(0)
   const [isChanging, setIsChanging] = useState(false)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [currentLyric, setCurrentLyric] = useState('')
 
   const { playList, curSongIdx, sequence } = useSelector(state => state.player)
   const dispatch = useDispatch()
@@ -29,7 +30,7 @@ export default memo(function () {
     enabled: !!songIdx,
   })
   isLyricError && message.error('获取歌词失败，请检查网络')
-  const lyric = useMemo(() => parseLyric(lyricData?.lrc?.lyric), [lyricData?.lrc?.lyric])
+  const lyrics = useMemo(() => parseLyric(lyricData?.lrc?.lyric), [lyricData?.lrc?.lyric])
 
   const audioRef = useRef()
 
@@ -46,12 +47,43 @@ export default memo(function () {
   }, [isPlaying, song])
 
   const onTimeUpdate = useCallback(e => {
-    if (!song?.dt || isChanging) {
+    if (!song?.dt) {
       return
     }
-    setCurrentTime(e.target.currentTime * 1000)
-    setProgress(currentTime * 100 / song?.dt)
-  }, [currentTime, isChanging, song?.dt])
+
+    const curTime = e.target.currentTime
+
+    if (!isChanging) {
+      setCurrentTime(curTime * 1000)
+      setProgress(curTime * 1000 / song?.dt * 100)
+    }
+
+    if (!lyrics) {
+      return
+    }
+    let curLyric
+    for (let i = 0; i < lyrics.length; i++) {
+      if (lyrics[i].time > curTime * 1000) {
+        if (i === 0) {
+          curLyric = lyrics[i].content
+        } else {
+          curLyric = lyrics[i - 1].content
+        }
+        break
+      } else if (i === lyrics.length - 1) {
+        curLyric = lyrics[i].content
+      }
+    }
+    if (currentLyric !== curLyric) {
+      setCurrentLyric(curLyric)
+      message.open({
+        className: 'lyric-msg',
+        key: 'lyric',
+        content: curLyric,
+        duration: 0,
+      })
+    }
+  }, [currentLyric, isChanging, lyrics, song?.dt])
 
   const onSliderChange = useCallback(value => {
     if (!song) {
@@ -73,13 +105,13 @@ export default memo(function () {
   }, [song?.dt])
 
   const onEnded = useCallback(() => {
-    if (sequence === PLAY_SINGLE) {
+    if (sequence === PLAY_SINGLE || playList.length === 1) {
       audioRef.current.currentTime = 0
       audioRef.current.play()
     } else {
       dispatch(switchSong(NEXT))
     }
-  }, [dispatch, sequence])
+  }, [dispatch, playList.length, sequence])
 
   useEffect(() => {
     if (!song?.id) {
@@ -116,12 +148,22 @@ export default memo(function () {
   }, [sequence])
 
   const playPrev = useCallback(() => {
-    dispatch(switchSong(PREV))
-  }, [dispatch])
+    if (playList.length === 1) {
+      audioRef.current.currentTime = 0
+      audioRef.current.play()
+    } else {
+      dispatch(switchSong(PREV))
+    }
+  }, [dispatch, playList.length])
 
   const playNext = useCallback(() => {
-    dispatch(switchSong(NEXT))
-  }, [dispatch])
+    if (playList.length === 1) {
+      audioRef.current.currentTime = 0
+      audioRef.current.play()
+    } else {
+      dispatch(switchSong(NEXT))
+    }
+  }, [dispatch, playList.length])
 
   return (
     <PlaybarWrapper className={'sprite_player'}>

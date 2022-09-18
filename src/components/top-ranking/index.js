@@ -21,8 +21,8 @@ export default memo(function (props) {
         <div className={'info'}>
           <a href={`#/discover/ranking?id=${info?.id}`}>{info?.name}</a>
           <div>
-            <button className={'btn sprite_02 play'}/>
-            <button className={'btn sprite_02 favor'}/>
+            <button className={'btn sprite_02 play'} title={'播放'}/>
+            <button className={'btn sprite_02 favor'} title={'收藏'}/>
           </div>
         </div>
       </div>
@@ -35,9 +35,9 @@ export default memo(function (props) {
                 <NavLink className={'name text-nowrap'} to={`/song?id=${item.id}`}
                          title={item.name}>{item.name}</NavLink>
                 <div className={'operate'}>
-                  <button className={'btn sprite_02 play'} onClick={() => play(item.id)}/>
-                  <button className={'btn sprite_icon2 addto'}/>
-                  <button className={'btn sprite_02 favor'}/>
+                  <button className={'btn sprite_02 play'} title={'播放'} onClick={() => play(item.id)}/>
+                  <button className={'btn sprite_icon2 addto'} title={'添加到播放列表'}/>
+                  <button className={'btn sprite_02 favor'} title={'收藏'}/>
                 </div>
               </div>
             </div>,
